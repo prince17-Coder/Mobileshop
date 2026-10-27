@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Shop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;background:#f1f5f9;color:#0f172a}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#e0e7ff,#dbeafe)}
+.login-card{width:100%;max-width:420px;background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:35px;box-shadow:0 20px 50px rgba(15,23,42,.15)}
+.login-logo{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 18px}
+.login-card h1{text-align:center;font-size:24px;margin-bottom:8px}
+.login-card p{text-align:center;color:#64748b;font-size:13px;margin-bottom:25px}
+.login-error{display:none;background:#fee2e2;color:#b91c1c;padding:10px;border-radius:8px;font-size:13px;margin-bottom:15px}
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;width:250px;height:100vh;background:#0f172a;color:#fff;padding:20px 14px;z-index:1000;overflow:auto}
+.brand{display:flex;gap:12px;align-items:center;padding:8px 10px 25px}
+.brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:20px}
+.brand h2{font-size:15px}
+.brand small{color:#94a3b8;font-size:10px}
+.nav-title{color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;padding:12px 12px 7px}
+.nav-item{width:100%;border:0;background:transparent;color:#cbd5e1;padding:11px 12px;border-radius:9px;text-align:left;display:flex;gap:11px;font-size:13px;margin-bottom:4px}
+.nav-item:hover,.nav-item.active{background:#1e293b;color:#fff}
+.nav-item.active{box-shadow:inset 3px 0 #3b82f6}
+.main{margin-left:250px}
+.topbar{height:70px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 25px;position:sticky;top:0;z-index:900}
+.mobile-menu{display:none;border:0;background:#f1f5f9;border-radius:8px;width:40px;height:40px;font-size:20px}
+.topbar-right{display:flex;gap:15px;align-items:center}
+.avatar{width:36px;height:36px;background:#dbeafe;color:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.user-box strong{font-size:12px}
+.user-box small{color:#64748b;font-size:10px}
+.content{padding:25px}
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px;flex-wrap:wrap}
+.page-header h2{font-size:21px}
+.page-header p{color:#64748b;font-size:12px;margin-top:5px}
+.btn{border:1px solid #e2e8f0;background:#fff;color:#334155;padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600}
+.btn:hover{background:#f8fafc}
+.btn-primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.btn-primary:hover{background:#1d4ed8}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:18px}
+.stat-top{display:flex;justify-content:space-between;align-items:center}
+.stat-icon{width:38px;height:38px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.stat-card h3{font-size:23px;margin-top:12px}
+.stat-card p{color:#64748b;font-size:11px;margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:18px;margin-bottom:18px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap}
+.card-header h3{font-size:14px}
+.card-header span{color:#64748b;font-size:11px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{background:#f8fafc;color:#64748b;font-size:10px;text-transform:uppercase;padding:11px;text-align:left;white-space:nowrap}
+td{border-top:1px solid #f1f5f9;padding:12px 11px;font-size:11px;white-space:nowrap}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:200px}
+.search-box input{width:100%;padding:10px 12px 10px 35px;border:1px solid #e2e8f0;border-radius:8px;outline:none;font-size:12px}
+.search-icon{position:absolute;left:12px;top:10px;color:#94a3b8}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:#475569;margin-bottom:6px}
+.form-control{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:10px 11px;outline:none;font-size:12px;background:#fff}
+.form-control:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+textarea.form-control{min-height:80px;resize:vertical}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:2000}
+.modal.show{display:flex}
+.modal-box{width:100%;max-width:560px;max-height:90vh;overflow:auto;background:#fff;border-radius:15px;padding:22px;box-shadow:0 25px 70px rgba(0,0,0,.25)}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.modal-header h3{font-size:17px}
+.close{width:32px;height:32px;border:0;background:#f1f5f9;border-radius:7px;font-size:20px;color:#475569}
+.badge{padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700}
+.badge-success{background:#dcfce7;color:#15803d}
+.badge-danger{background:#fee2e2;color:#b91c1c}
+.empty{text-align:center;padding:40px;color:#64748b;font-size:12px}
+#toastContainer{position:fixed;right:20px;bottom:20px;z-index:5000;display:flex;flex-direction:column;gap:10px}
+.toast{min-width:250px;padding:13px 15px;border-radius:9px;color:#fff;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.toast.success{background:#16a34a}
+.toast.error{background:#dc2626}
+.toast.info{background:#2563eb}
+.filter-pill{padding:6px 12px;border-radius:20px;border:1px solid #cbd5e1;font-size:11px;background:#fff;color:#475569;font-weight:500}
+.filter-pill.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.ai-chat-card{background:#fff;border:1px solid #e2e8f0;border-radius:15px;display:flex;flex-direction:column;height:calc(100vh - 230px);min-height:420px;overflow:hidden}
+.ai-chat-head{display:flex;gap:12px;align-items:center;padding:15px 20px;border-bottom:1px solid #e2e8f0}
+.ai-chat-head-icon{width:40px;height:40px;border-radius:11px;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.ai-chat-messages{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:#fcfdff}
+.ai-chat-presets{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px 0}
+.ai-chat-presets button{border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:6px 13px;font-size:11px;font-weight:600}
+.ai-chat-input{display:flex;gap:10px;padding:14px 20px}
+.ai-chat-input input{flex:1;border:1px solid #cbd5e1;border-radius:8px;padding:11px 13px;font-size:13px;outline:none}
+body.dark{background:#020617;color:#e2e8f0}
+body.dark .topbar,body.dark .card,body.dark .stat-card,body.dark .modal-box,body.dark .login-card,body.dark .ai-chat-card{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+body.dark .form-control,body.dark .btn,body.dark .filter-pill,body.dark .ai-chat-input input{background:#111827;color:#e2e8f0;border-color:#334155}
+body.dark th{background:#111827;color:#94a3b8}
+body.dark td{border-color:#1e293b}
+body.dark .login-page{background:#020617}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile-menu{display:block}.stats-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
+@media print{.sidebar,.topbar,.page-header button,.toolbar{display:none!important}.main{margin-left:0!important}}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">📱</div>
+    <h1>Mobile Shop Manager</h1>
+    <p>Professional shop management system</p>
+    <div class="login-error" id="loginError"></div>
+    <div class="form-group"><label>Email</label><input id="loginEmail" class="form-control" placeholder="admin@shop.com"></div>
+    <div class="form-group"><label>Password</label><input id="loginPassword" type="password" class="form-control" placeholder="admin123" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px" onclick="login()">Login</button>
+    <p style="margin-top:15px;font-size:11px;color:#64748b">Demo login: admin@shop.com / admin123</p>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-icon">📱</div><div><h2>Mobile Shop</h2><small>Management System</small></div></div>
+    <div class="nav-title">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-item" onclick="showPage('customers',this)">👥 Customers</button>
+    <button class="nav-item" onclick="showPage('products',this)">📱 Mobile Inventory</button>
+    <button class="nav-item" onclick="showPage('sales',this)">🧾 Sales</button>
+    <button class="nav-item" onclick="showPage('purchases',this)">📦 Purchases</button>
+    <button class="nav-item" onclick="showPage('expenses',this)">💸 Expenses</button>
+    <div class="nav-title">Analytics</div>
+    <button class="nav-item" onclick="showPage('reports',this)">📈 Reports</button>
+    <button class="nav-item" onclick="showPage('ai',this)">🤖 AI Assistant</button>
+    <div class="nav-title">System</div>
+    <button class="nav-item" onclick="showPage('settings',this)">⚙️ Settings</button>
+    <div style="margin-top:25px;padding-top:15px;border-top:1px solid #1e293b">
+      <button class="nav-item" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div><strong id="topTitle">Dashboard</strong><div style="color:#64748b;font-size:10px">Mobile Shop Management</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn" onclick="toggleDarkMode()">🌙</button>
+        <div class="user-box"><div class="avatar" id="avatar">A</div><div><strong id="currentUser">Admin</strong><br><small>Administrator</small></div></div>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="page active" id="dashboardPage">
+        <div class="page-header"><div><h2>Dashboard</h2><p>Overview of your mobile shop</p></div><button class="btn btn-primary" onclick="showPageByName('products')">+ Add Mobile</button></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-top"><div><p>Today's Sales</p><h3 id="todaySales">₹0</h3></div><div class="stat-icon">💰</div></div></div>
+          <div class="stat-card"><div class="stat-top"><div><p>Today's Profit</p><h3 id="todayProfit">₹0</h3></div><div class="stat-icon">📈</div></div></div>
+          <div class="stat-card"><div class="stat-top"><div><p>Total Stock</p><h3 id="totalStock">0</h3></div><div class="stat-icon">📱</div></div></div>
+          <div class="stat-card"><div class="stat-top"><div><p>Total Customers</p><h3 id="totalCustomers">0</h3></div><div class="stat-icon">👥</div></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><div><h3>Sales Overview</h3><span>Recent sales performance</span></div></div><canvas id="salesChart" height="120"></canvas></div>
+          <div class="card"><div class="card-header"><div><h3>Stock Status</h3><span>Mobile inventory</span></div></div><canvas id="summaryChart" height="120"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><h3>Recent Sales</h3><span>Latest transactions</span></div><button class="btn" onclick="showPageByName('sales')">View All</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Mobile</th><th>Qty</th><th>Amount</th><th>Date</th></tr></thead><tbody id="dashboardSalesBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="customersPage">
+        <div class="page-header"><div><h2>Customers</h2><p>Manage your mobile shop customers</p></div><button class="btn btn-primary" onclick="openModal('customerModal')">+ Add Customer</button></div>
+        <div class="card">
+          <div class="toolbar"><div class="search-box"><span class="search-icon">🔍</span><input id="customerSearch" placeholder="Search customer..." oninput="renderCustomers()"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City</th></tr></thead><tbody id="customersTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="productsPage">
+        <div class="page-header"><div><h2>Mobile Inventory</h2><p>Manage mobile phones, IMEI, prices and stock</p></div><button class="btn btn-primary" onclick="openModal('productModal')">+ Add Mobile</button></div>
+        <div class="card">
+          <div class="toolbar"><div class="search-box"><span class="search-icon">🔍</span><input id="productSearch" placeholder="Search brand, model, IMEI..." oninput="renderProducts()"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Brand</th><th>Model</th><th>IMEI 1</th><th>RAM</th><th>Storage</th><th>Color</th><th>Purchase</th><th>Selling</th><th>Stock</th><th>Min Stock</th><th>Supplier</th><th>Warranty</th></tr></thead><tbody id="productsTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="salesPage">
+        <div class="page-header"><div><h2>Sales</h2><p>Record mobile sales and manage transactions</p></div><button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button></div>
+        <div class="card">
+          <div class="toolbar"><div class="search-box"><span class="search-icon">🔍</span><input id="salesSearch" placeholder="Search sales..." oninput="renderSales()"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Mobile</th><th>Quantity</th><th>Amount</th><th>Date</th></tr></thead><tbody id="salesTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="purchasesPage">
+        <div class="page-header"><div><h2>Purchases</h2><p>Record mobile purchases and automatically update stock</p></div><button class="btn btn-primary" onclick="openPurchaseModal()">+ Add Purchase</button></div>
+        <div class="card">
+          <div class="toolbar"><div class="search-box"><span class="search-icon">🔍</span><input id="purchaseSearch" placeholder="Search purchases..." oninput="renderPurchases()"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Supplier</th><th>Mobile</th><th>Quantity</th><th>Purchase Price</th><th>Total</th><th>Invoice</th><th>Date</th></tr></thead><tbody id="purchasesTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="expensesPage">
+        <div class="page-header"><div><h2>Expenses</h2><p>Track shop expenses</p></div><button class="btn btn-primary" onclick="openModal('expenseModal')">+ Add Expense</button></div>
+        <div class="card">
+          <div class="toolbar"><div class="search-box"><span class="search-icon">🔍</span><input id="expenseSearch" placeholder="Search expenses..." oninput="renderExpenses()"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead><tbody id="expensesTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="reportsPage">
+        <div class="page-header">
+          <div><h2>Reports & Analytics</h2><p>Business performance analysis</p></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="filter-pill active" onclick="setReportFilter('all',this)">All Time</button>
+            <button class="filter-pill" onclick="setReportFilter('7days',this)">Last 7 Days</button>
+            <button class="filter-pill" onclick="setReportFilter('month',this)">This Month</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Export PDF / Print</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><p>Total Sales</p><h3 id="reportTotalSales">₹0</h3></div>
+          <div class="stat-card"><p>Estimated Profit</p><h3 id="reportTotalProfit" style="color:#16a34a">₹0</h3></div>
+          <div class="stat-card"><p>Total Stock</p><h3 id="reportTotalStock">0</h3></div>
+          <div class="stat-card"><p>Low Stock Warnings</p><h3 id="reportLowStock" style="color:#ef4444">0</h3></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><div><h3>Sales Trend</h3><span>Revenue per transaction</span></div></div><canvas id="reportSalesChart" height="130"></canvas></div>
+          <div class="card"><div class="card-header"><div><h3>Brand Inventory</h3><span>Stock per brand</span></div></div><canvas id="reportBrandChart" height="130"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><h3>Inventory Profitability</h3><span>Per-unit margin analysis</span></div><input id="reportTableSearch" class="form-control" style="max-width:220px" placeholder="Filter brand/model..." oninput="renderReportProducts()"></div>
+          <div class="table-wrap"><table><thead><tr><th>Brand</th><th>Model</th><th>Purchase</th><th>Selling</th><th>Profit / Unit</th><th>Stock</th><th>Status</th></tr></thead><tbody id="reportProductsBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="page" id="aiPage">
+        <div class="page-header"><div><h2>AI Assistant</h2><p>Smart business assistant</p></div></div>
+        <div class="ai-chat-card">
+          <div class="ai-chat-head"><div class="ai-chat-head-icon">🤖</div><div><h3>Mobile Shop AI Assistant</h3><span style="color:#16a34a;font-size:11px">● Connected to your shop data</span></div></div>
+          <div class="ai-chat-messages" id="aiChatMessages"></div>
+          <div class="ai-chat-presets">
+            <button onclick="askPreset('What are today\'s total sales?')">Today's sales</button>
+            <button onclick="askPreset('Which mobile is selling the most?')">Best selling</button>
+            <button onclick="askPreset('What is this month\'s profit?')">Monthly profit</button>
+            <button onclick="askPreset('Which mobiles are low in stock?')">Low stock</button>
+            <button onclick="askPreset('How many customers do I have?')">Customers</button>
+          </div>
+          <div class="ai-chat-input">
+            <input id="aiUserInput" placeholder="Ask about stock, sales, profit..." onkeydown="if(event.key==='Enter')sendAi()">
+            <button class="btn btn-primary" onclick="sendAi()">Send 🚀</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="settingsPage">
+        <div class="card">
+    <div class="card-header">
+        <h3>Backup & Export</h3>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn" onclick="exportCSV()">
+            📊 Export All Data CSV
+        </button>
+    </div>
+</div>
+        <div class="page-header"><div><h2>Settings</h2><p>Application settings</p></div></div>
+        <div class="card"><div class="card-header"><h3>Appearance</h3></div><button class="btn" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button></div>
+        <div class="card"><div class="card-header"><h3>Data</h3></div><button class="btn" onclick="resetData()" style="border-color:#ef4444;color:#ef4444">🗑️ Reset All Demo Data</button></div>
+        <div class="card"><div class="card-header"><h3>System Information</h3></div><p style="font-size:12px;color:#64748b;line-height:2">Mobile Shop Management System<br>Frontend: HTML, CSS, JavaScript<br>Charts: Chart.js<br>Data Storage: Browser Local Storage</p></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="customerModal"><div class="modal-box">
+  <div class="modal-header"><div><h3>Add Customer</h3><small style="color:#64748b">Customer information</small></div><button class="close" onclick="closeModal('customerModal')">×</button></div>
+  <div class="form-group"><label>Name *</label><input id="customerName" class="form-control"></div>
+  <div class="form-group"><label>Phone *</label><input id="customerPhone" class="form-control"></div>
+  <div class="form-group"><label>Email</label><input id="customerEmail" class="form-control"></div>
+  <div class="form-group"><label>City</label><input id="customerCity" class="form-control"></div>
+  <div class="form-actions"><button class="btn" onclick="closeModal('customerModal')">Cancel</button><button class="btn btn-primary" onclick="saveCustomer()">Save Customer</button></div>
+</div></div>
+
+<div class="modal" id="productModal"><div class="modal-box" style="max-width:650px">
+  <div class="modal-header"><div><h3>Add Mobile</h3><small style="color:#64748b">Add mobile phone to inventory</small></div><button class="close" onclick="closeModal('productModal')">×</button></div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px">
+    <div class="form-group"><label>Brand *</label><input id="productBrand" class="form-control"></div>
+    <div class="form-group"><label>Model *</label><input id="productModel" class="form-control"></div>
+    <div class="form-group"><label>IMEI 1</label><input id="productIMEI1" class="form-control" maxlength="15"></div>
+    <div class="form-group"><label>IMEI 2</label><input id="productIMEI2" class="form-control" maxlength="15"></div>
+    <div class="form-group"><label>RAM</label><select id="productRAM" class="form-control"><option value="">Select</option><option>4 GB</option><option>6 GB</option><option>8 GB</option><option>12 GB</option><option>16 GB</option></select></div>
+    <div class="form-group"><label>Storage</label><select id="productStorage" class="form-control"><option value="">Select</option><option>64 GB</option><option>128 GB</option><option>256 GB</option><option>512 GB</option><option>1 TB</option></select></div>
+    <div class="form-group"><label>Color</label><input id="productColor" class="form-control"></div>
+    <div class="form-group"><label>Category</label><select id="productCategory" class="form-control"><option>Smartphone</option><option>Feature Phone</option><option>Tablet</option><option>Other</option></select></div>
+    <div class="form-group"><label>Purchase Price *</label><input id="productPurchasePrice" type="number" class="form-control"></div>
+    <div class="form-group"><label>Selling Price *</label><input id="productSellingPrice" type="number" class="form-control"></div>
+    <div class="form-group"><label>Stock *</label><input id="productStock" type="number" class="form-control" value="1"></div>
+    <div class="form-group"><label>Minimum Stock</label><input id="productMinStock" type="number" class="form-control" value="1"></div>
+    <div class="form-group"><label>Supplier</label><input id="productSupplier" class="form-control"></div>
+    <div class="form-group"><label>Warranty</label><select id="productWarranty" class="form-control"><option value="">Select</option><option>No Warranty</option><option>6 Months</option><option>1 Year</option><option>2 Years</option><option>3 Years</option></select></div>
+  </div>
+  <div class="form-actions"><button class="btn" onclick="closeModal('productModal')">Cancel</button><button class="btn btn-primary" onclick="saveProduct()">📱 Save Mobile</button></div>
+</div></div>
+
+<div class="modal" id="purchaseModal"><div class="modal-box">
+  <div class="modal-header"><div><h3>Add Purchase</h3><small style="color:#64748b">Record purchase and increase stock</small></div><button class="close" onclick="closeModal('purchaseModal')">×</button></div>
+  <div class="form-group"><label>Supplier *</label><input id="purchaseSupplier" class="form-control"></div>
+  <div class="form-group"><label>Mobile *</label><select id="purchaseProduct" class="form-control" onchange="updatePurchasePrice()"><option value="">Select Mobile</option></select></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="form-group"><label>Quantity *</label><input id="purchaseQuantity" type="number" class="form-control" value="1" oninput="calculatePurchaseTotal()"></div>
+    <div class="form-group"><label>Purchase Price / Unit *</label><input id="purchaseUnitPrice" type="number" class="form-control" oninput="calculatePurchaseTotal()"></div>
+    <div class="form-group"><label>Purchase Date *</label><input id="purchaseDate" type="date" class="form-control"></div>
+    <div class="form-group"><label>Invoice No.</label><input id="purchaseInvoice" class="form-control"></div>
+  </div>
+  <div class="form-group"><label>Notes</label><textarea id="purchaseNotes" class="form-control"></textarea></div>
+  <div style="background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:13px"><div style="font-size:11px;color:#64748b">Total Purchase Amount</div><div id="purchaseTotal" style="font-size:22px;font-weight:800;color:#2563eb">₹0</div></div>
+  <div class="form-actions"><button class="btn" onclick="closeModal('purchaseModal')">Cancel</button><button class="btn btn-primary" onclick="savePurchase()">📦 Save Purchase</button></div>
+</div></div>
+
+<div class="modal" id="saleModal"><div class="modal-box">
+  <div class="modal-header"><div><h3>New Sale</h3><small style="color:#64748b">Record mobile sale</small></div><button class="close" onclick="closeModal('saleModal')">×</button></div>
+  <div class="form-group"><label>Customer</label><select id="saleCustomer" class="form-control"><option value="">Walk-in Customer</option></select></div>
+  <div class="form-group"><label>Mobile *</label><select id="saleProduct" class="form-control" onchange="updateSalePrice()"><option value="">Select Mobile</option></select></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+    <div class="form-group"><label>Quantity *</label><input id="saleQuantity" type="number" class="form-control" value="1" oninput="calculateSaleAmount()"></div>
+    <div class="form-group"><label>Selling Price</label><input id="salePrice" type="number" class="form-control" readonly></div>
+  </div>
+  <div style="background:#f8fafc;border-radius:10px;padding:15px;display:flex;justify-content:space-between;align-items:center"><span style="color:#64748b;font-size:12px">Total Amount</span><strong id="saleTotal" style="font-size:20px;color:#2563eb">₹0</strong></div>
+  <div class="form-actions"><button class="btn" onclick="closeModal('saleModal')">Cancel</button><button class="btn btn-primary" onclick="saveSale()">🧾 Save Sale</button></div>
+</div></div>
+
+<div class="modal" id="expenseModal"><div class="modal-box">
+  <div class="modal-header"><div><h3>Add Expense</h3><small style="color:#64748b">Record shop expense</small></div><button class="close" onclick="closeModal('expenseModal')">×</button></div>
+  <div class="form-group"><label>Title *</label><input id="expenseTitle" class="form-control"></div>
+  <div class="form-group"><label>Category</label><select id="expenseCategory" class="form-control"><option value="">Select</option><option>Rent</option><option>Electricity</option><option>Salary</option><option>Internet</option><option>Transport</option><option>Other</option></select></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="form-group"><label>Amount *</label><input id="expenseAmount" type="number" class="form-control"></div>
+    <div class="form-group"><label>Date *</label><input id="expenseDate" type="date" class="form-control"></div>
+  </div>
+  <div class="form-group"><label>Notes</label><textarea id="expenseNotes" class="form-control"></textarea></div>
+  <div class="form-actions"><button class="btn" onclick="closeModal('expenseModal')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save Expense</button></div>
+</div></div>
+
+<div id="toastContainer"></div>
+
+<script>
+    
+function exportCSV() {
+    try {
+        // Use the actual arrays already defined in your application.
+        const dataSets = [
+            { name: "PRODUCTS INVENTORY", data: products, headers: [
+                "ID", "Brand", "Model", "IMEI 1", "IMEI 2",
+                "RAM", "Storage", "Color", "Purchase Price",
+                "Selling Price", "Stock", "Minimum Stock",
+                "Supplier", "Warranty"
+            ], fields: [
+                "id", "brand", "model", "imei1", "imei2",
+                "ram", "storage", "color", "purchase_price",
+                "selling_price", "stock", "min_stock",
+                "supplier", "warranty"
+            ]},
+            { name: "SALES TRANSACTIONS", data: sales, headers: [
+                "ID", "Customer Name", "Brand", "Model",
+                "Quantity", "Amount", "Date"
+            ], fields: [
+                "id", "customer_name", "brand", "model",
+                "quantity", "amount", "sale_date"
+            ]},
+            { name: "PURCHASES", data: purchases, headers: [
+                "ID", "Supplier", "Brand", "Model",
+                "Quantity", "Purchase Price", "Total Amount",
+                "Invoice No", "Date"
+            ], fields: [
+                "id", "supplier", "brand", "model", "quantity",
+                "purchase_price", "total_amount", "invoice_no",
+                "purchase_date"
+            ]},
+            { name: "CUSTOMERS", data: customers, headers: [
+                "ID", "Name", "Phone", "Email", "City"
+            ], fields: ["id", "name", "phone", "email", "city"]},
+            { name: "EXPENSES", data: expenses, headers: [
+                "ID", "Title", "Category", "Amount", "Date", "Notes"
+            ], fields: [
+                "id", "title", "category", "amount",
+                "expense_date", "notes"
+            ]}
+        ];
+
+        const totalRecords = dataSets.reduce(
+            (total, section) => total + section.data.length, 0
+        );
+
+        if (totalRecords === 0) {
+            toast("No data available to export.", "error");
+            return;
+        }
+
+        function csvCell(value) {
+            let text = value == null ? "" : String(value);
+
+            // Prevent spreadsheet formula injection.
+            if (/^[\s]*[=+\-@]/.test(text)) {
+                text = "'" + text;
+            }
+
+            return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        const lines = [];
+
+        dataSets.forEach(section => {
+            lines.push(csvCell(section.name));
+            lines.push(section.headers.map(csvCell).join(","));
+
+            section.data.forEach(record => {
+                lines.push(
+                    section.fields
+                        .map(field => csvCell(record[field]))
+                        .join(",")
+                );
+            });
+
+            lines.push("");
+            lines.push("");
+        });
+
+        // UTF-8 BOM supports Gujarati and other characters in Excel.
+        const csvContent = "\uFEFF" + lines.join("\r\n");
+        const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const date = new Date().toISOString().slice(0, 10);
+
+        link.href = url;
+        link.download = `MobileShop_Data_${date}.csv`;
+        link.style.display = "none";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        toast(
+            `CSV export successful! ${totalRecords} records exported.`,
+            "success"
+        );
+
+    } catch (error) {
+        console.error("CSV Export Error:", error);
+        toast("Failed to export CSV data.", "error");
+    }
+}
+
+let customers=JSON.parse(localStorage.getItem("ms_customers")||"[]");
+let products=JSON.parse(localStorage.getItem("ms_products")||"[]");
+let sales=JSON.parse(localStorage.getItem("ms_sales")||"[]");
+let purchases=JSON.parse(localStorage.getItem("ms_purchases")||"[]");
+let expenses=JSON.parse(localStorage.getItem("ms_expenses")||"[]");
+let salesChart,summaryChart,reportSalesChart,reportBrandChart,currentReportFilter="all";
+
+function saveAll(){
+  localStorage.setItem("ms_customers",JSON.stringify(customers));
+  localStorage.setItem("ms_products",JSON.stringify(products));
+  localStorage.setItem("ms_sales",JSON.stringify(sales));
+  localStorage.setItem("ms_purchases",JSON.stringify(purchases));
+  localStorage.setItem("ms_expenses",JSON.stringify(expenses));
+}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function money(v){return "₹"+Number(v||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(v){if(!v)return "-";const d=new Date(v);return isNaN(d)?String(v):d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}
+function toast(msg,type="info"){const t=document.createElement("div");t.className="toast "+type;t.textContent=msg;document.getElementById("toastContainer").appendChild(t);setTimeout(()=>t.remove(),3000)}
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+document.addEventListener("click",e=>{if(e.target.classList.contains("modal"))e.target.classList.remove("show")});
+
+function login(){
+  const email=document.getElementById("loginEmail").value.trim();
+  const pass=document.getElementById("loginPassword").value;
+  const err=document.getElementById("loginError");
+  err.style.display="none";
+  if(email==="admin@shop.com"&&pass==="admin123"){
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("app").style.display="block";
+    document.getElementById("currentUser").textContent="Admin";
+    document.getElementById("avatar").textContent="A";
+    refreshAll();toast("Login successful.","success");
+  }else{err.textContent="Invalid email or password.";err.style.display="block"}
+}
+function logout(){document.getElementById("app").style.display="none";document.getElementById("loginPage").style.display="flex"}
+function toggleDarkMode(){document.body.classList.toggle("dark");localStorage.setItem("ms_dark",document.body.classList.contains("dark"))}
+if(localStorage.getItem("ms_dark")==="true")document.body.classList.add("dark");
+
+function showPage(name,el){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(name+"Page").classList.add("active");
+  document.getElementById("topTitle").textContent=name.charAt(0).toUpperCase()+name.slice(1);
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  if(el)el.classList.add("active");
+  document.getElementById("sidebar").classList.remove("open");
+  if(name==="reports")updateReports();
+}
+function showPageByName(name){document.querySelectorAll(".sidebar .nav-item").forEach(b=>{if((b.getAttribute("onclick")||"").includes(`'${name}'`))showPage(name,b)})}
+
+function refreshAll(){renderCustomers();renderProducts();renderSales();renderPurchases();renderExpenses();updateDashboard();updateReports()}
+
+function renderCustomers(){
+  const q=(document.getElementById("customerSearch").value||"").toLowerCase();
+  const rows=customers.filter(c=>[c.name,c.phone,c.email,c.city].join(" ").toLowerCase().includes(q));
+  document.getElementById("customersTableBody").innerHTML=rows.length?rows.map(c=>`<tr><td>${c.id}</td><td><strong>${esc(c.name)}</strong></td><td>${esc(c.phone)}</td><td>${esc(c.email||"-")}</td><td>${esc(c.city||"-")}</td></tr>`).join(""):`<tr><td colspan="5"><div class="empty">No customers found.</div></td></tr>`;
+}
+function saveCustomer(){
+  const name=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.trim();
+  if(!name||!phone)return toast("Name and phone are required.","error");
+  customers.push({id:customers.length+1,name,phone,email:document.getElementById("customerEmail").value.trim(),city:document.getElementById("customerCity").value.trim()});
+  saveAll();closeModal("customerModal");renderCustomers();updateDashboard();toast("Customer added successfully.","success");
+}
+
+function renderProducts(){
+  const q=(document.getElementById("productSearch").value||"").toLowerCase();
+  const rows=products.filter(p=>[p.brand,p.model,p.imei1,p.imei2,p.color,p.supplier].join(" ").toLowerCase().includes(q));
+  document.getElementById("productsTableBody").innerHTML=rows.length?rows.map(p=>{
+    const low=Number(p.stock)<=Number(p.min_stock);
+    return `<tr><td>${p.id}</td><td><strong>${esc(p.brand)}</strong></td><td>${esc(p.model)}</td><td>${esc(p.imei1||"-")}</td><td>${esc(p.ram||"-")}</td><td>${esc(p.storage||"-")}</td><td>${esc(p.color||"-")}</td><td>${money(p.purchase_price)}</td><td><strong>${money(p.selling_price)}</strong></td><td style="color:${low?"#ef4444":"#16a34a"}"><strong>${p.stock}</strong></td><td>${p.min_stock}</td><td>${esc(p.supplier||"-")}</td><td>${esc(p.warranty||"-")}</td></tr>`}).join(""):`<tr><td colspan="13"><div class="empty">No mobile products found.</div></td></tr>`;
+}
+function saveProduct(){
+  const brand=document.getElementById("productBrand").value.trim(),model=document.getElementById("productModel").value.trim();
+  const pp=Number(document.getElementById("productPurchasePrice").value)||0,sp=Number(document.getElementById("productSellingPrice").value)||0;
+  if(!brand||!model)return toast("Brand and model are required.","error");
+  if(sp<=0)return toast("Selling price must be greater than 0.","error");
+  products.push({id:products.length+1,brand,model,imei1:document.getElementById("productIMEI1").value.trim(),imei2:document.getElementById("productIMEI2").value.trim(),ram:document.getElementById("productRAM").value,storage:document.getElementById("productStorage").value,color:document.getElementById("productColor").value.trim(),category:document.getElementById("productCategory").value,purchase_price:pp,selling_price:sp,stock:Number(document.getElementById("productStock").value)||0,min_stock:Number(document.getElementById("productMinStock").value)||0,supplier:document.getElementById("productSupplier").value.trim(),warranty:document.getElementById("productWarranty").value});
+  saveAll();closeModal("productModal");renderProducts();populateSelects();updateDashboard();toast("Mobile added successfully.","success");
+}
+
+function renderSales(){
+  const q=(document.getElementById("salesSearch").value||"").toLowerCase();
+  const rows=sales.filter(s=>[s.customer_name,s.brand,s.model,s.amount].join(" ").toLowerCase().includes(q));
+  document.getElementById("salesTableBody").innerHTML=rows.length?rows.map(s=>`<tr><td>${s.id}</td><td>${esc(s.customer_name||"Walk-in")}</td><td><strong>${esc((s.brand||"")+" "+(s.model||""))}</strong></td><td>${s.quantity}</td><td><strong>${money(s.amount)}</strong></td><td>${fmtDate(s.sale_date)}</td></tr>`).join(""):`<tr><td colspan="6"><div class="empty">No sales found.</div></td></tr>`;
+}
+function populateSelects(){
+  const cs=document.getElementById("saleCustomer");cs.innerHTML=`<option value="">Walk-in Customer</option>`;
+  customers.forEach(c=>{const o=document.createElement("option");o.value=c.name;o.textContent=c.name+" - "+(c.phone||"");cs.appendChild(o)});
+  const ss=document.getElementById("saleProduct");ss.innerHTML=`<option value="">Select Mobile</option>`;
+  products.filter(p=>p.stock>0).forEach(p=>{const o=document.createElement("option");o.value=p.id;o.textContent=`${p.brand} ${p.model} — Stock: ${p.stock}`;ss.appendChild(o)});
+  const ps=document.getElementById("purchaseProduct");ps.innerHTML=`<option value="">Select Mobile</option>`;
+  products.forEach(p=>{const o=document.createElement("option");o.value=p.id;o.textContent=`${p.brand} ${p.model} — Current Stock: ${p.stock}`;ps.appendChild(o)});
+}
+function openSaleModal(){populateSelects();document.getElementById("saleQuantity").value=1;document.getElementById("salePrice").value="";document.getElementById("saleTotal").textContent="₹0";openModal("saleModal")}
+function updateSalePrice(){const p=products.find(x=>String(x.id)===document.getElementById("saleProduct").value);document.getElementById("salePrice").value=p?p.selling_price:"";calculateSaleAmount()}
+function calculateSaleAmount(){const q=Number(document.getElementById("saleQuantity").value)||0,p=Number(document.getElementById("salePrice").value)||0;document.getElementById("saleTotal").textContent=money(q*p)}
+function saveSale(){
+  const pid=document.getElementById("saleProduct").value,q=Number(document.getElementById("saleQuantity").value)||0;
+  const p=products.find(x=>String(x.id)===pid);
+  if(!p)return toast("Please select a mobile.","error");
+  if(q<=0)return toast("Quantity must be greater than 0.","error");
+  if(p.stock<q)return toast("Insufficient stock.","error");
+  p.stock-=q;
+  sales.unshift({id:sales.length+1,customer_name:document.getElementById("saleCustomer").value,product_id:p.id,brand:p.brand,model:p.model,quantity:q,amount:p.selling_price*q,sale_date:today()});
+  saveAll();closeModal("saleModal");refreshAll();toast("Sale added successfully.","success");
+}
+
+function renderPurchases(){
+  const q=(document.getElementById("purchaseSearch").value||"").toLowerCase();
+  const rows=purchases.filter(p=>[p.supplier,p.brand,p.model,p.invoice_no].join(" ").toLowerCase().includes(q));
+  document.getElementById("purchasesTableBody").innerHTML=rows.length?rows.map(p=>`<tr><td>${p.id}</td><td>${esc(p.supplier)}</td><td><strong>${esc((p.brand||"")+" "+(p.model||""))}</strong></td><td>${p.quantity}</td><td>${money(p.purchase_price)}</td><td><strong>${money(p.total_amount)}</strong></td><td>${esc(p.invoice_no||"-")}</td><td>${fmtDate(p.purchase_date)}</td></tr>`).join(""):`<tr><td colspan="8"><div class="empty">No purchases found.</div></td></tr>`;
+}
+function openPurchaseModal(){populateSelects();document.getElementById("purchaseSupplier").value="";document.getElementById("purchaseQuantity").value=1;document.getElementById("purchaseUnitPrice").value="";document.getElementById("purchaseInvoice").value="";document.getElementById("purchaseNotes").value="";document.getElementById("purchaseDate").value=today();document.getElementById("purchaseTotal").textContent="₹0";openModal("purchaseModal")}
+function updatePurchasePrice(){const p=products.find(x=>String(x.id)===document.getElementById("purchaseProduct").value);document.getElementById("purchaseUnitPrice").value=p?p.purchase_price:"";calculatePurchaseTotal()}
+function calculatePurchaseTotal(){const q=Number(document.getElementById("purchaseQuantity").value)||0,p=Number(document.getElementById("purchaseUnitPrice").value)||0;document.getElementById("purchaseTotal").textContent=money(q*p)}
+function savePurchase(){
+  const supplier=document.getElementById("purchaseSupplier").value.trim(),pid=document.getElementById("purchaseProduct").value,q=Number(document.getElementById("purchaseQuantity").value)||0,price=Number(document.getElementById("purchaseUnitPrice").value)||0,date=document.getElementById("purchaseDate").value;
+  const p=products.find(x=>String(x.id)===pid);
+  if(!supplier)return toast("Supplier name is required.","error");
+  if(!p)return toast("Please select a mobile.","error");
+  if(q<=0||price<0||!date)return toast("Please enter valid purchase details.","error");
+  p.stock+=q;
+  purchases.unshift({id:purchases.length+1,supplier,product_id:p.id,brand:p.brand,model:p.model,quantity:q,purchase_price:price,total_amount:q*price,invoice_no:document.getElementById("purchaseInvoice").value.trim(),purchase_date:date});
+  saveAll();closeModal("purchaseModal");refreshAll();toast("Purchase added. Stock increased.","success");
+}
+
+function renderExpenses(){
+  const q=(document.getElementById("expenseSearch").value||"").toLowerCase();
+  const rows=expenses.filter(e=>[e.title,e.category,e.notes].join(" ").toLowerCase().includes(q));
+  document.getElementById("expensesTableBody").innerHTML=rows.length?rows.map(e=>`<tr><td>${e.id}</td><td><strong>${esc(e.title)}</strong></td><td>${esc(e.category||"-")}</td><td>${money(e.amount)}</td><td>${fmtDate(e.expense_date)}</td><td>${esc(e.notes||"-")}</td></tr>`).join(""):`<tr><td colspan="6"><div class="empty">No expenses found.</div></td></tr>`;
+}
+function saveExpense(){
+  const title=document.getElementById("expenseTitle").value.trim(),amount=Number(document.getElementById("expenseAmount").value)||0,date=document.getElementById("expenseDate").value;
+  if(!title||amount<=0||!date)return toast("Please enter valid expense details.","error");
+  expenses.unshift({id:expenses.length+1,title,category:document.getElementById("expenseCategory").value,amount,expense_date:date,notes:document.getElementById("expenseNotes").value.trim()});
+  saveAll();closeModal("expenseModal");renderExpenses();toast("Expense added successfully.","success");
+}
+
+function updateDashboard(){
+  const t=today();
+  const ts=sales.filter(s=>String(s.sale_date).startsWith(t));
+  document.getElementById("todaySales").textContent=money(ts.reduce((a,s)=>a+Number(s.amount),0));
+  document.getElementById("todayProfit").textContent=money(ts.reduce((a,s)=>{const p=products.find(x=>String(x.id)===String(s.product_id));return a+(p?(p.selling_price-p.purchase_price)*s.quantity:0)},0));
+  document.getElementById("totalStock").textContent=products.reduce((a,p)=>a+Number(p.stock),0);
+  document.getElementById("totalCustomers").textContent=customers.length;
+  document.getElementById("dashboardSalesBody").innerHTML=sales.slice(0,5).map(s=>`<tr><td>${esc(s.customer_name||"Walk-in")}</td><td>${esc((s.brand||"")+" "+(s.model||""))}</td><td>${s.quantity}</td><td><strong>${money(s.amount)}</strong></td><td>${fmtDate(s.sale_date)}</td></tr>`).join("")||`<tr><td colspan="5"><div class="empty">No sales yet.</div></td></tr>`;
+  updateCharts();
+}
+function updateCharts(){
+  if(salesChart)salesChart.destroy();if(summaryChart)summaryChart.destroy();
+  const labels=sales.slice(0,7).reverse().map(s=>fmtDate(s.sale_date));
+  const values=sales.slice(0,7).reverse().map(s=>Number(s.amount));
+  salesChart=new Chart(document.getElementById("salesChart"),{type:"line",data:{labels:labels.length?labels:["No Data"],datasets:[{label:"Sales",data:values.length?values:[0],borderWidth:2,tension:.35,borderColor:"#2563eb"}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  let normal=0,low=0,out=0;
+  products.forEach(p=>{const s=Number(p.stock),m=Number(p.min_stock);if(s===0)out++;else if(s<=m)low+=s;else normal+=s});
+  summaryChart=new Chart(document.getElementById("summaryChart"),{type:"doughnut",data:{labels:["Normal Stock","Low Stock","Out of Stock Models"],datasets:[{data:[normal,low,out],backgroundColor:["#22c55e","#f59e0b","#ef4444"],borderWidth:3,borderColor:"#fff"}]},options:{plugins:{legend:{position:"bottom"}}}});
+}
+
+function setReportFilter(type,btn){currentReportFilter=type;document.querySelectorAll("#reportsPage .filter-pill").forEach(b=>b.classList.remove("active"));btn.classList.add("active");updateReports()}
+function updateReports(){
+  let list=[...sales];const now=new Date();
+  if(currentReportFilter==="7days"){const d=new Date();d.setDate(d.getDate()-7);list=sales.filter(s=>new Date(s.sale_date)>=d)}
+  if(currentReportFilter==="month"){const m=today().slice(0,7);list=sales.filter(s=>String(s.sale_date).startsWith(m))}
+  const total=list.reduce((a,s)=>a+Number(s.amount),0);
+  const profit=list.reduce((a,s)=>{const p=products.find(x=>String(x.id)===String(s.product_id));return a+(p?(p.selling_price-p.purchase_price)*s.quantity:0)},0);
+  document.getElementById("reportTotalSales").textContent=money(total);
+  document.getElementById("reportTotalProfit").textContent=money(profit);
+  document.getElementById("reportTotalStock").textContent=products.reduce((a,p)=>a+Number(p.stock),0);
+  document.getElementById("reportLowStock").textContent=products.filter(p=>Number(p.stock)<=Number(p.min_stock)).length;
+  renderReportProducts();renderReportCharts(list);
+}
+function renderReportProducts(){
+  const q=(document.getElementById("reportTableSearch").value||"").toLowerCase();
+  const rows=products.filter(p=>[p.brand,p.model].join(" ").toLowerCase().includes(q));
+  document.getElementById("reportProductsBody").innerHTML=rows.length?rows.map(p=>{
+    const profit=Number(p.selling_price)-Number(p.purchase_price),low=Number(p.stock)<=Number(p.min_stock);
+    return `<tr><td><strong>${esc(p.brand)}</strong></td><td>${esc(p.model)}</td><td>${money(p.purchase_price)}</td><td>${money(p.selling_price)}</td><td style="color:#16a34a"><strong>+${money(profit)}</strong></td><td>${p.stock}</td><td>${low?`<span class="badge badge-danger">Low Stock</span>`:`<span class="badge badge-success">In Stock</span>`}</td></tr>`}).join(""):`<tr><td colspan="7"><div class="empty">No inventory matches found.</div></td></tr>`;
+}
+function renderReportCharts(list){
+  if(reportSalesChart)reportSalesChart.destroy();if(reportBrandChart)reportBrandChart.destroy();
+  reportSalesChart=new Chart(document.getElementById("reportSalesChart"),{type:"line",data:{labels:list.slice(0,10).reverse().map(s=>fmtDate(s.sale_date)).length?list.slice(0,10).reverse().map(s=>fmtDate(s.sale_date)):["No Data"],datasets:[{label:"Revenue",data:list.slice(0,10).reverse().map(s=>Number(s.amount)).length?list.slice(0,10).reverse().map(s=>Number(s.amount)):[0],borderColor:"#2563eb",backgroundColor:"rgba(37,99,235,.1)",fill:true,tension:.3}]},options:{plugins:{legend:{display:false}}}});
+  const brands={};products.forEach(p=>brands[p.brand||"Other"]=(brands[p.brand||"Other"]||0)+Number(p.stock));
+  reportBrandChart=new Chart(document.getElementById("reportBrandChart"),{type:"doughnut",data:{labels:Object.keys(brands).length?Object.keys(brands):["No Stock"],datasets:[{data:Object.values(brands).length?Object.values(brands):[1],backgroundColor:["#2563eb","#16a34a","#f59e0b","#ef4444","#8b5cf6","#06b6d4"]}]},options:{plugins:{legend:{position:"bottom"}}}});
+}
+
+function askPreset(q){document.getElementById("aiUserInput").value=q;sendAi()}
+function sendAi(){
+  const input=document.getElementById("aiUserInput"),chat=document.getElementById("aiChatMessages"),q=input.value.trim();
+  if(!q)return;
+  chat.insertAdjacentHTML("beforeend",`<div style="display:flex;justify-content:flex-end;gap:10px"><div style="background:#2563eb;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;max-width:75%">${esc(q)}</div><div style="width:32px;height:32px;border-radius:8px;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:700">U</div></div>`);
+  input.value="";chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{
+    const ans=aiAnswer(q);
+    chat.insertAdjacentHTML("beforeend",`<div style="display:flex;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center">🤖</div><div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 15px;border-radius:12px;font-size:12px;line-height:1.6;max-width:80%">${ans}</div></div>`);
+    chat.scrollTop=chat.scrollHeight;
+  },400);
+}
+function aiAnswer(query){
+  const q=query.toLowerCase(),t=today(),month=t.slice(0,7);
+  const periodSales=sales.filter(s=>q.includes("today")?String(s.sale_date).startsWith(t):q.includes("month")?String(s.sale_date).startsWith(month):true);
+  const label=q.includes("today")?"today":q.includes("month")?"this month":"in total";
+  if(/(best|most|top|popular)/.test(q)&&/(sell|sold|sale)/.test(q)){
+    if(!periodSales.length)return "No sales found "+label+".";
+    const totals={};periodSales.forEach(s=>{const n=(s.brand||"")+" "+(s.model||"");totals[n]=(totals[n]||0)+Number(s.quantity)});
+    const top=Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+    return "🏆 Best selling mobile "+label+": <strong>"+esc(top[0][0])+"</strong> ("+top[0][1]+" sold).";
+  }
+  if(/(profit|margin|earning)/.test(q)){
+    const profit=periodSales.reduce((a,s)=>{const p=products.find(x=>String(x.id)===String(s.product_id));return a+(p?(p.selling_price-p.purchase_price)*s.quantity:0)},0);
+    return "Estimated profit "+label+" is <strong>"+money(profit)+"</strong>.";
+  }
+  if(q.includes("low")||q.includes("reorder")){
+    const low=products.filter(p=>Number(p.stock)<=Number(p.min_stock));
+    return low.length?"⚠️ <strong>"+low.length+"</strong> mobile(s) are low in stock:<br>"+low.map(p=>"• "+esc(p.brand+" "+p.model)+" (Stock: "+p.stock+")").join("<br>"):"✅ No mobiles are low in stock.";
+  }
+  if(q.includes("sale")||q.includes("revenue")){
+    const amount=periodSales.reduce((a,s)=>a+Number(s.amount),0),qty=periodSales.reduce((a,s)=>a+Number(s.quantity),0);
+    return "Sales "+label+": <strong>"+periodSales.length+"</strong> transaction(s), <strong>"+qty+"</strong> mobile(s), total <strong>"+money(amount)+"</strong>.";
+  }
+  if(q.includes("stock")||q.includes("inventory")){
+    const total=products.reduce((a,p)=>a+Number(p.stock),0);
+    return "Your shop has <strong>"+total+"</strong> mobile(s) in stock across <strong>"+products.length+"</strong> model(s).";
+  }
+  if(q.includes("customer"))return "You have <strong>"+customers.length+"</strong> customer(s) saved.";
+  if(q.includes("expense")){
+    const list=expenses.filter(e=>q.includes("today")?String(e.expense_date).startsWith(t):q.includes("month")?String(e.expense_date).startsWith(month):true);
+    return "Expenses "+label+": <strong>"+money(list.reduce((a,e)=>a+Number(e.amount),0))+"</strong>.";
+  }
+  return "I can help with stock, sales, profit, customers and expenses.";
+}
+
+function resetData(){
+  if(!confirm("Reset all shop data?"))return;
+  customers=[];products=[];sales=[];purchases=[];expenses=[];saveAll();refreshAll();toast("All data reset.","info");
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("expenseDate").value=today();
+  document.getElementById("purchaseDate").value=today();
+  document.getElementById("aiChatMessages").innerHTML=`<div style="display:flex;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center">🤖</div><div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 15px;border-radius:12px;font-size:12px;max-width:80%">Hello! Ask me about your <strong>stock</strong>, <strong>sales</strong>, <strong>profit</strong>, <strong>customers</strong> or <strong>expenses</strong>.</div></div>`;
+  refreshAll();
+});
+</script>
+</body>
+</html>
